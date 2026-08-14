@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 붉은 말의 해 - 챌린지 만다라트 (Mandarat)</title>
+ 
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              800: '#9f1239',
+              900: '#881337',
+            }
+          }
+        }
+      }
+    }
+  </script>
+ 
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+ 
+  <!-- Google Fonts Inter & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+
+
+  <!-- Firebase v10 Compat CDN Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+   
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #e11d48;
+    }
+
+
+    /* Grid transition animations */
+    .fade-in {
+      animation: fadeIn 0.25s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+
+    .pulse-subtle {
+      animation: pulseSubtle 2s infinite;
+    }
+    @keyframes pulseSubtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col bg-slate-900 text-slate-100 antialiased selection:bg-brand-600 selection:text-white">
+
+
+  <!-- Navigation Header -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-lg px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+     
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-rose-600 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-brand-900/40">
+          <i class="fa-solid fa-horse-head text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-black text-lg sm:text-xl tracking-tight bg-gradient-to-r from-rose-200 via-rose-400 to-amber-300 bg-clip-text text-transparent">
+              2026 챌린지 만다라트
+            </h1>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-900/80 text-rose-300 border border-brand-700/50 font-semibold">
+              붉은 말의 해 🐎
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">81개 실천 과제로 이루어내는 나의 2026년 비전</p>
+        </div>
+      </div>
+
+
+      <!-- Center / Right Controls: Sync Indicator + View Switchers -->
+      <div class="flex flex-wrap items-center justify-center sm:justify-end gap-3 w-full sm:w-auto">
+       
+        <!-- Realtime Sync Status Badge -->
+        <div id="sync-status-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-xs font-medium text-slate-300">
+          <span id="sync-dot" class="w-2.5 h-2.5 rounded-full bg-amber-500 pulse-subtle"></span>
+          <span id="sync-text">연결 중...</span>
+        </div>
+
+
+        <!-- View Switch Buttons -->
+        <div class="flex items-center p-1 bg-slate-800 rounded-xl border border-slate-700/80 text-xs font-semibold">
+          <button id="btn-view-main" onclick="switchView('main')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all bg-brand-600 text-white shadow">
+            <i class="fa-solid fa-table-cells-large"></i>
+            <span>메인 뷰</span>
+          </button>
+          <button id="btn-view-focus" onclick="switchView('focus')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+            <i class="fa-solid fa-crosshairs"></i>
+            <span>포커스 뷰</span>
+          </button>
+          <button id="btn-view-full" onclick="switchView('full')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
+            <i class="fa-solid fa-grid-horizontal"></i>
+            <span>전체 9x9</span>
+          </button>
+        </div>
+
+
+        <!-- Utility Buttons -->
+        <div class="flex items-center gap-1.5">
+          <button onclick="copyShareLink()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition border border-slate-700" title="URL 공유 / 백업 ID 확인">
+            <i class="fa-solid fa-share-nodes"></i>
+          </button>
+          <button onclick="openConfigGuideModal()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition border border-slate-700" title="Firebase 설정 가이드">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+      </div>
+
+
+    </div>
+  </header>
+
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+
+
+    <!-- Overall Progress Header Banner -->
+    <div class="bg-gradient-to-r from-slate-800 via-slate-800/90 to-brand-950/40 p-4 sm:p-5 rounded-2xl border border-slate-700/70 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4 w-full md:w-auto">
+        <div class="p-3 bg-brand-600/20 text-brand-400 border border-brand-500/30 rounded-xl hidden sm:flex">
+          <i class="fa-solid fa-chart-pie text-2xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-200">2026 달성 달성률</h2>
+            <span id="overall-percentage" class="text-xs font-black text-rose-400 bg-rose-950/80 px-2 py-0.5 rounded-md border border-rose-800/50">0% (0 / 64 과제)</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">8개 세부목표 x 8개 실천과제 = 총 64개 세부 과제 채우기</p>
+        </div>
+      </div>
+
+
+      <!-- Dynamic Progress Bar -->
+      <div class="w-full md:w-64 bg-slate-900/80 p-2 rounded-xl border border-slate-700/60">
+        <div class="flex justify-between text-xs text-slate-400 mb-1.5 font-medium">
+          <span>달성 현황</span>
+          <span id="progress-text-detail">0 / 64</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700">
+          <div id="overall-progress-bar" class="bg-gradient-to-r from-rose-500 to-amber-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- 1) MAIN VIEW (Center 3x3 Core Grid + 8 Sub-goal Cards) -->
+    <section id="view-main" class="fade-in flex flex-col gap-8">
+     
+      <!-- Core Target 3x3 Block Display -->
+      <div class="max-w-xl mx-auto w-full">
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2">
+            <i class="fa-solid fa-bullseye text-brand-500"></i>
+            <span>핵심 만다라트 (중앙 3x3)</span>
+          </h3>
+          <span class="text-xs text-slate-400">중앙: 핵심 목표 | 주변 8개: 세부 목표</span>
+        </div>
+
+
+        <div id="main-core-grid" class="grid grid-cols-3 gap-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-xl">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+
+
+      <!-- 8 Sub-goal Action Cards Summary -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-bold text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-amber-400"></i>
+            <span>8대 세부 목표 및 실천 과제 현황</span>
+          </h3>
+          <span class="text-xs text-slate-400">카드를 클릭하여 상세 3x3 실천 과제 작성 모드로 이동</span>
+        </div>
+
+
+        <div id="subgoals-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- 2) FOCUS VIEW (Specific Sub-goal 3x3 Input Mode) -->
+    <section id="view-focus" class="fade-in hidden flex flex-col items-center gap-6">
+      <div class="w-full max-w-2xl bg-slate-800/80 p-5 rounded-2xl border border-slate-700 shadow-xl">
+       
+        <!-- Focus Navigation Bar -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pb-4 border-b border-slate-700/80">
+          <button onclick="switchView('main')" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>메인으로 돌아가기</span>
+          </button>
+         
+          <div class="flex items-center gap-2">
+            <label for="focus-selector" class="text-xs text-slate-400 font-medium">포커스 목표 선택:</label>
+            <select id="focus-selector" onchange="changeFocusBlock(parseInt(this.value))" class="bg-slate-900 text-slate-200 border border-slate-700 text-xs font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-500">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+        </div>
+
+
+        <!-- Focus Grid Container -->
+        <div class="mt-5 flex flex-col items-center">
+          <div class="mb-3 text-center">
+            <span class="text-xs font-bold text-brand-400 uppercase tracking-wider">Focus Target #<span id="focus-block-num">1</span></span>
+            <h3 id="focus-block-title" class="text-lg font-black text-slate-100 mt-0.5">세부목표 미정</h3>
+            <p class="text-xs text-slate-400 mt-1">중앙은 세부목표이며, 주변 8개 칸에 가시적인 2026년 실천 과제를 입력하세요.</p>
+          </div>
+
+
+          <div id="focus-3x3-grid" class="grid grid-cols-3 gap-2 sm:gap-3 bg-slate-950 p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-2xl w-full max-w-md">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+
+      </div>
+    </section>
+
+
+    <!-- 3) FULL VIEW (Complete 9x9 81 Cells Overview) -->
+    <section id="view-full" class="fade-in hidden flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div>
+          <h3 class="text-base font-bold text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-table-cells text-brand-400"></i>
+            <span>전체 9x9 만다라트 매트릭스 (81 칸)</span>
+          </h3>
+          <p class="text-xs text-slate-400">모든 세부 목표와 64개 실천 과제를 한눈에 조망하고 직접 수정할 수 있습니다.</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-brand-950 border border-brand-800 text-brand-300">
+            <span class="w-2 h-2 rounded-full bg-brand-500"></span> 핵심 영역
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span> 세부 목표
+          </span>
+        </div>
+      </div>
+
+
+      <!-- 9x9 Scrollable Grid -->
+      <div class="overflow-x-auto pb-4 pt-1">
+        <div id="full-9x9-grid" class="grid grid-cols-3 gap-3 min-w-[840px] bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-2xl">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-slate-800/80 bg-slate-950 py-4 px-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>2026 붉은 말의 해 챌린지 만다라트 &copy; Real-time Firebase Sync Edition</p>
+      <div class="flex items-center gap-4">
+        <a href="javascript:void(0)" onclick="openConfigGuideModal()" class="hover:text-slate-300 transition">Firebase 연동 안내</a>
+        <span>|</span>
+        <a href="javascript:void(0)" onclick="exportMandaratJSON()" class="hover:text-slate-300 transition">데이터 백업 (JSON)</a>
+        <span>|</span>
+        <a href="javascript:void(0)" onclick="clearAllDataPrompt()" class="hover:text-rose-400 transition">초기화</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+
+  <!-- Firebase Config & Guide Modal -->
+  <div id="config-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 text-slate-200">
+     
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+          <i class="fa-solid fa-fire text-amber-500"></i>
+          <span>Firebase 연동 및 Security 가이드</span>
+        </h3>
+        <button onclick="closeConfigGuideModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-300 mt-4 leading-relaxed">
+       
+        <div class="p-3 bg-brand-950/60 border border-brand-800/60 rounded-xl text-rose-200">
+          <strong>💡 GitHub Pages 배포 안내:</strong><br>
+          이 파일 하나만 <code>index.html</code>로 지정하여 GitHub 리포지토리에 푸시하면 즉시 실시간 웹앱으로 작동합니다!
+        </div>
+
+
+        <h4 class="font-bold text-amber-400 text-sm mt-3">1. Firebase Firestore 연동 설정</h4>
+        <p>본 HTML 파일 스크립트 상단의 <code>firebaseConfig</code> 객체에 본인의 Firebase Project 정보를 입력하세요.</p>
+
+
+        <h4 class="font-bold text-amber-400 text-sm mt-3">2. API 키 남용 방지 (Google Cloud Console 도메인 제한)</h4>
+        <p>Client-side JS 환경의 API 키 유출 및 오용을 막기 위해 HTTP 리퍼러 제한을 설정해야 합니다.</p>
+
+
+        <h4 class="font-bold text-amber-400 text-sm mt-3">3. Firestore Security Rules (보안 규칙 설정)</h4>
+        <p>Firestore Database &gt; Rules 탭에 다음 규칙을 작성하여 공유 링크(UID) 접속 시 읽기/쓰기가 가능하도록 허용하세요.</p>
+        <pre class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-cyan-300 font-mono text-xs overflow-x-auto">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /mandalarts/{userId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>
+
+
+        <div class="pt-4 border-t border-slate-800 flex justify-end">
+          <button onclick="closeConfigGuideModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold">
+            확인 및 닫기
+          </button>
+        </div>
+
+
+      </div>
+
+
+    </div>
+  </div>
+
+
+  <script>
+    /* =========================================================================
+       FIREBASE CONFIGURATION
+       ========================================================================= */
+    const firebaseConfig = {
+    apiKey: "AIzaSyBpZhaLQOG1XyqG_RPVmb0a3x2rFslJgmE",
+    authDomain: "mandalart-52b.firebaseapp.com",
+    projectId: "mandalart-52b",
+    storageBucket: "mandalart-52b.firebasestorage.app",
+    messagingSenderId: "363615220226",
+    appId: "1:363615220226:web:0f777c121bf8ed4b712d1b"
+  };
+
+
+    let matrix = Array.from({ length: 9 }, () => Array(9).fill(''));
+    let checkState = Array.from({ length: 9 }, () => Array(9).fill(false));
+
+
+    let currentView = 'main'; // 'main' | 'focus' | 'full'
+    let activeFocusBlock = 0; // 0..8
+
+
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    let docRef = null;
+    let unsubscribeSnapshot = null;
+
+
+    let isLocalUpdating = false;
+    let debounceTimer = null;
+    let isFirebaseReady = false;
+
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      loadLocalStorageBackup();
+      setupURLParams();
+      initializeFirebase();
+      renderAll();
+    });
+
+
+    function setupURLParams() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const uidParam = urlParams.get('uid');
+      if (uidParam) {
+        window.customTargetUid = uidParam;
+      }
+    }
+
+
+    function initializeFirebase() {
+      const isConfigValid = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId;
+
+
+      if (isConfigValid && typeof firebase !== 'undefined') {
+        try {
+          if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+          }
+          db = firebase.firestore();
+          auth = firebase.auth();
+
+
+          updateSyncStatus('connecting', 'Firebase 인증 중...');
+
+
+          auth.signInAnonymously().then(cred => {
+            currentUser = cred.user;
+            const targetUid = window.customTargetUid || currentUser.uid;
+           
+            docRef = db.collection('mandalarts').doc(targetUid);
+           
+            showToast('Firebase 익명 로그인 성공!', 'success');
+            isFirebaseReady = true;
+
+
+            setupFirestoreListener();
+          }).catch(err => {
+            // Handle HTTP Referer or Domain restriction error gracefully
+            const isRefererBlocked = err.code === 'auth/requests-from-referer-blocked' ||
+                                     (err.message && err.message.includes('requests-from-referer'));
+           
+            console.warn('Firebase Auth (Local Fallback):', err.message);
+            setupLocalFallback(isRefererBlocked ? '도메인 제한 (로컬 저장 모드)' : '로컬 스토리지 모드');
+          });
+
+
+        } catch (e) {
+          console.warn('Firebase Init Exception:', e);
+          setupLocalFallback('로컬 스토리지 모드');
+        }
+      } else {
+        setupLocalFallback('로컬 스토리지 모드');
+      }
+    }
+
+
+    function setupLocalFallback(statusText) {
+      isFirebaseReady = false;
+      docRef = null;
+     
+      let localUid = localStorage.getItem('mandalart_local_uid');
+      if (!localUid) {
+        localUid = 'local_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('mandalart_local_uid', localUid);
+      }
+      currentUser = { uid: window.customTargetUid || localUid };
+
+
+      updateSyncStatus('offline', statusText);
+      showToast('미리보기/로컬 환경입니다. 로컬 스토리지에 자동 저장됩니다.', 'info');
+    }
+
+
+    function setupFirestoreListener() {
+      if (!docRef) return;
+
+
+      unsubscribeSnapshot = docRef.onSnapshot(doc => {
+        if (isLocalUpdating) return;
+
+
+        if (doc.exists) {
+          const data = doc.data();
+         
+          if (data.matrixJson) {
+            try { matrix = JSON.parse(data.matrixJson); } catch (e) {}
+          } else if (data.matrix && Array.isArray(data.matrix)) {
+            matrix = data.matrix;
+          }
+
+
+          if (data.checkStateJson) {
+            try { checkState = JSON.parse(data.checkStateJson); } catch (e) {}
+          } else if (data.checkState && Array.isArray(data.checkState)) {
+            checkState = data.checkState;
+          }
+
+
+          saveLocalStorageBackup();
+          renderAll();
+          updateSyncStatus('connected', '실시간 동기화됨');
+        } else {
+          saveToFirestore();
+          updateSyncStatus('connected', '새 만다라트 생성됨');
+        }
+      }, err => {
+        console.error('Firestore onSnapshot Error:', err);
+        updateSyncStatus('error', '동기화 오류');
+        showToast('실시간 동기화 오류 발생: ' + err.message, 'error');
+      });
+    }
+
+
+    function handleInputChange(blockIdx, cellIdx, value) {
+      isLocalUpdating = true;
+      matrix[blockIdx][cellIdx] = value;
+
+
+      if (blockIdx === 4 && cellIdx !== 4) {
+        matrix[cellIdx][4] = value;
+      } else if (blockIdx !== 4 && cellIdx === 4) {
+        matrix[4][blockIdx] = value;
+      }
+
+
+      saveLocalStorageBackup();
+      updateProgressIndicators();
+      syncCrossViewInputs(blockIdx, cellIdx, value);
+
+
+      updateSyncStatus('saving', '저장 중...');
+
+
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        saveToFirestore();
+      }, 400);
+    }
+
+
+    function toggleCheckTask(blockIdx, cellIdx, event) {
+      event.stopPropagation();
+      checkState[blockIdx][cellIdx] = !checkState[blockIdx][cellIdx];
+      saveLocalStorageBackup();
+      updateProgressIndicators();
+      renderAll();
+
+
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        saveToFirestore();
+      }, 300);
+    }
+
+
+    function saveToFirestore() {
+      if (!docRef || !isFirebaseReady) {
+        isLocalUpdating = false;
+        updateSyncStatus('offline', '로컬 저장 완료');
+        return;
+      }
+
+
+      const payload = {
+        matrixJson: JSON.stringify(matrix),
+        checkStateJson: JSON.stringify(checkState),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+
+      docRef.set(payload, { merge: true }).then(() => {
+        isLocalUpdating = false;
+        updateSyncStatus('connected', '실시간 동기화됨');
+      }).catch(err => {
+        console.error('Firestore Write Error:', err);
+        isLocalUpdating = false;
+        updateSyncStatus('error', '저장 실패');
+        showToast('Firestore 저장 실패: ' + err.message, 'error');
+      });
+    }
+
+
+    function saveLocalStorageBackup() {
+      try {
+        localStorage.setItem('mandalart_2026_matrix', JSON.stringify(matrix));
+        localStorage.setItem('mandalart_2026_checkState', JSON.stringify(checkState));
+      } catch (e) {
+        console.warn('LocalStorage save error:', e);
+      }
+    }
+
+
+    function loadLocalStorageBackup() {
+      try {
+        const savedMatrix = localStorage.getItem('mandalart_2026_matrix');
+        const savedCheck = localStorage.getItem('mandalart_2026_checkState');
+        if (savedMatrix) matrix = JSON.parse(savedMatrix);
+        if (savedCheck) checkState = JSON.parse(savedCheck);
+      } catch (e) {
+        console.warn('LocalStorage load error:', e);
+      }
+    }
+
+
+    function switchView(viewName) {
+      currentView = viewName;
+
+
+      ['main', 'focus', 'full'].forEach(v => {
+        const btn = document.getElementById(`btn-view-${v}`);
+        const viewEl = document.getElementById(`view-${v}`);
+        if (v === viewName) {
+          btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all bg-brand-600 text-white shadow";
+          viewEl.classList.remove('hidden');
+        } else {
+          btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200";
+          viewEl.classList.add('hidden');
+        }
+      });
+
+
+      renderAll();
+    }
+
+
+    function changeFocusBlock(blockIdx) {
+      activeFocusBlock = blockIdx;
+      renderFocusView();
+    }
+
+
+    function renderAll() {
+      updateProgressIndicators();
+      if (currentView === 'main') renderMainView();
+      if (currentView === 'focus') renderFocusView();
+      if (currentView === 'full') renderFullView();
+    }
+
+
+    function renderMainView() {
+      const coreGridContainer = document.getElementById('main-core-grid');
+      let coreHtml = '';
+
+
+      for (let c = 0; c < 9; c++) {
+        const val = matrix[4][c] || '';
+        const isCoreTarget = (c === 4);
+       
+        if (isCoreTarget) {
+          coreHtml += `
+            <div class="col-span-1 bg-gradient-to-br from-brand-900 via-rose-900 to-slate-900 border-2 border-brand-500/80 rounded-xl p-2 sm:p-3 flex flex-col justify-center items-center shadow-lg relative group">
+              <span class="text-[10px] font-black text-rose-300 uppercase tracking-widest mb-1 flex items-center gap-1">
+                <i class="fa-solid fa-crown text-amber-400"></i> 핵심 목표
+              </span>
+              <textarea
+                data-block="4" data-cell="4"
+                oninput="handleInputChange(4, 4, this.value)"
+                placeholder="2026년 최종 핵심 목표"
+                class="w-full h-16 sm:h-20 bg-transparent text-center text-xs sm:text-sm font-black text-white resize-none focus:outline-none placeholder:text-rose-300/40 leading-tight"
+              >${escapeHtml(val)}</textarea>
+            </div>
+          `;
+        } else {
+          const subGoalNum = c < 4 ? c + 1 : c;
+          coreHtml += `
+            <div class="col-span-1 bg-slate-900 border border-slate-700/80 hover:border-amber-500/60 transition rounded-xl p-2 flex flex-col justify-between shadow-sm">
+              <div class="flex items-center justify-between text-[10px] text-amber-400/80 font-bold mb-1">
+                <span>세부목표 #${subGoalNum}</span>
+                <button onclick="openFocusViewForBlock(${c})" class="text-slate-400 hover:text-amber-300" title="이 세부목표 포커스">
+                  <i class="fa-solid fa-expand text-[10px]"></i>
+                </button>
+              </div>
+              <textarea
+                data-block="4" data-cell="${c}"
+                oninput="handleInputChange(4, ${c}, this.value)"
+                placeholder="세부목표 ${subGoalNum}"
+                class="w-full h-14 bg-transparent text-center text-xs font-semibold text-slate-200 resize-none focus:outline-none placeholder:text-slate-600 leading-tight"
+              >${escapeHtml(val)}</textarea>
+            </div>
+          `;
+        }
+      }
+      coreGridContainer.innerHTML = coreHtml;
+
+
+      const cardsContainer = document.getElementById('subgoals-cards-container');
+      let cardsHtml = '';
+      const outerBlockIndices = [0, 1, 2, 3, 5, 6, 7, 8];
+
+
+      outerBlockIndices.forEach((bIdx, orderIdx) => {
+        const rawSubTitle = matrix[4][bIdx];
+        const subGoalTitleDisplay = rawSubTitle && rawSubTitle.trim() !== '' ? escapeHtml(rawSubTitle) : `<span class="text-slate-500 italic">세부목표 #${orderIdx + 1} 미입력</span>`;
+       
+        let filledCount = 0;
+        let checkedCount = 0;
+        for (let cellIdx = 0; cellIdx < 9; cellIdx++) {
+          if (cellIdx === 4) continue;
+          if (matrix[bIdx][cellIdx] && matrix[bIdx][cellIdx].trim() !== '') filledCount++;
+          if (checkState[bIdx][cellIdx]) checkedCount++;
+        }
+
+
+        const pct = Math.round((checkedCount / 8) * 100);
+
+
+        cardsHtml += `
+          <div class="bg-slate-800/80 border border-slate-700/80 hover:border-brand-500/50 rounded-2xl p-4 flex flex-col justify-between transition shadow-md group">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-900 text-amber-400 border border-slate-700">
+                  Target #${orderIdx + 1}
+                </span>
+                <span class="text-xs font-semibold ${checkedCount === 8 ? 'text-emerald-400' : 'text-slate-400'}">
+                  ${checkedCount}/8 완료
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-slate-100 line-clamp-2 min-h-[2.5rem] mb-2">
+                ${subGoalTitleDisplay}
+              </h4>
+
+
+              <div class="w-full bg-slate-900 rounded-full h-1.5 mb-3 overflow-hidden">
+                <div class="bg-gradient-to-r from-brand-500 to-amber-400 h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+              </div>
+
+
+              <ul class="text-xs text-slate-400 space-y-1 mb-4">
+                ${getTaskPreviewList(bIdx)}
+              </ul>
+            </div>
+
+
+            <button onclick="openFocusViewForBlock(${bIdx})" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-brand-600 text-slate-300 hover:text-white text-xs font-semibold transition border border-slate-700 hover:border-brand-500 flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>상세 과제 채우기 (${filledCount}/8)</span>
+            </button>
+          </div>
+        `;
+      });
+
+
+      cardsContainer.innerHTML = cardsHtml;
+    }
+
+
+    function getTaskPreviewList(blockIdx) {
+      let listHtml = '';
+      let count = 0;
+      for (let c = 0; c < 9; c++) {
+        if (c === 4) continue;
+        const taskText = matrix[blockIdx][c];
+        const isChecked = checkState[blockIdx][c];
+        if (taskText && taskText.trim() !== '') {
+          if (count < 3) {
+            listHtml += `
+              <li class="flex items-center gap-1.5 truncate ${isChecked ? 'line-through text-slate-600' : ''}">
+                <i class="fa-solid ${isChecked ? 'fa-circle-check text-emerald-400' : 'fa-circle-dot text-slate-600'} text-[10px]"></i>
+                <span class="truncate">${escapeHtml(taskText)}</span>
+              </li>
+            `;
+          }
+          count++;
+        }
+      }
+      if (count === 0) {
+        return `<li class="text-slate-600 italic">작성된 실천 과제가 없습니다.</li>`;
+      }
+      if (count > 3) {
+        listHtml += `<li class="text-[10px] text-slate-500 font-medium">+ 외 ${count - 3}개 과제</li>`;
+      }
+      return listHtml;
+    }
+
+
+    function openFocusViewForBlock(blockIdx) {
+      activeFocusBlock = blockIdx;
+      switchView('focus');
+    }
+
+
+    function renderFocusView() {
+      const selector = document.getElementById('focus-selector');
+      let optionsHtml = '';
+      const outerBlockIndices = [0, 1, 2, 3, 5, 6, 7, 8];
+     
+      outerBlockIndices.forEach((bIdx, idx) => {
+        const title = matrix[4][bIdx] || `세부목표 #${idx + 1}`;
+        optionsHtml += `<option value="${bIdx}" ${bIdx === activeFocusBlock ? 'selected' : ''}>Target #${idx + 1}: ${escapeHtml(title)}</option>`;
+      });
+      selector.innerHTML = optionsHtml;
+
+
+      document.getElementById('focus-block-num').innerText = outerBlockIndices.indexOf(activeFocusBlock) + 1;
+      const subGoalTitle = matrix[4][activeFocusBlock] || '세부목표 미정';
+      document.getElementById('focus-block-title').innerText = subGoalTitle;
+
+
+      const focusGridContainer = document.getElementById('focus-3x3-grid');
+      let gridHtml = '';
+
+
+      for (let c = 0; c < 9; c++) {
+        const val = matrix[activeFocusBlock][c] || '';
+        const isCenterSubGoal = (c === 4);
+
+
+        if (isCenterSubGoal) {
+          gridHtml += `
+            <div class="col-span-1 bg-gradient-to-br from-amber-950 via-slate-900 to-slate-900 border-2 border-amber-500/80 rounded-xl p-2 flex flex-col justify-center items-center shadow-md">
+              <span class="text-[10px] font-black text-amber-400 uppercase mb-1">세부 목표</span>
+              <textarea
+                data-block="${activeFocusBlock}" data-cell="4"
+                oninput="handleInputChange(${activeFocusBlock}, 4, this.value)"
+                placeholder="세부 목표"
+                class="w-full h-16 text-center text-xs sm:text-sm font-extrabold text-amber-200 bg-transparent resize-none focus:outline-none placeholder:text-amber-500/40 leading-tight"
+              >${escapeHtml(val)}</textarea>
+            </div>
+          `;
+        } else {
+          const taskNum = c < 4 ? c + 1 : c;
+          const isChecked = checkState[activeFocusBlock][c];
+
+
+          gridHtml += `
+            <div class="col-span-1 bg-slate-900 border ${isChecked ? 'border-emerald-500/60 bg-emerald-950/10' : 'border-slate-800 hover:border-slate-700'} rounded-xl p-2 flex flex-col justify-between shadow-sm relative group">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[9px] font-bold text-slate-500">과제 ${taskNum}</span>
+                <button onclick="toggleCheckTask(${activeFocusBlock}, ${c}, event)" class="text-slate-500 hover:text-emerald-400 p-0.5 transition" title="달성 여부 토글">
+                  <i class="fa-solid ${isChecked ? 'fa-square-check text-emerald-400 text-sm' : 'fa-square text-slate-700 text-sm'}"></i>
+                </button>
+              </div>
+              <textarea
+                data-block="${activeFocusBlock}" data-cell="${c}"
+                oninput="handleInputChange(${activeFocusBlock}, ${c}, this.value)"
+                placeholder="실천 과제 ${taskNum}"
+                class="w-full h-14 bg-transparent text-center text-xs font-medium ${isChecked ? 'line-through text-slate-500' : 'text-slate-200'} resize-none focus:outline-none placeholder:text-slate-600 leading-tight"
+              >${escapeHtml(val)}</textarea>
+            </div>
+          `;
+        }
+      }
+
+
+      focusGridContainer.innerHTML = gridHtml;
+    }
+
+
+    function renderFullView() {
+      const fullGridContainer = document.getElementById('full-9x9-grid');
+      let gridHtml = '';
+
+
+      for (let b = 0; b < 9; b++) {
+        const isCoreBlock = (b === 4);
+       
+        gridHtml += `
+          <div class="col-span-1 grid grid-cols-3 gap-1.5 p-2 rounded-xl ${isCoreBlock ? 'bg-slate-900 border-2 border-brand-600/70 shadow-lg' : 'bg-slate-900/60 border border-slate-800'}">
+        `;
+
+
+        for (let c = 0; c < 9; c++) {
+          const val = matrix[b][c] || '';
+          const isBlockCenterCell = (c === 4);
+          const isMainCoreTarget = (b === 4 && c === 4);
+          const isChecked = checkState[b][c];
+
+
+          let bgClasses = "bg-slate-950 border-slate-800 text-slate-300";
+         
+          if (isMainCoreTarget) {
+            bgClasses = "bg-brand-950/80 border-brand-500 text-rose-200 font-bold";
+          } else if (isBlockCenterCell) {
+            bgClasses = "bg-amber-950/40 border-amber-500/60 text-amber-200 font-semibold";
+          } else if (isChecked) {
+            bgClasses = "bg-emerald-950/20 border-emerald-800/40 text-slate-500 line-through";
+          }
+
+
+          gridHtml += `
+            <div class="col-span-1 border ${bgClasses} rounded-lg p-1 flex flex-col justify-between h-20 transition focus-within:ring-1 focus-within:ring-brand-500">
+              <div class="flex items-center justify-between text-[8px] opacity-60">
+                <span>${b+1}-${c+1}</span>
+                ${(!isBlockCenterCell && !isMainCoreTarget) ? `
+                  <button onclick="toggleCheckTask(${b}, ${c}, event)" class="hover:text-emerald-400">
+                    <i class="fa-solid ${isChecked ? 'fa-check text-emerald-400' : 'fa-minus'}"></i>
+                  </button>
+                ` : ''}
+              </div>
+              <textarea
+                data-block="${b}" data-cell="${c}"
+                oninput="handleInputChange(${b}, ${c}, this.value)"
+                placeholder="${isMainCoreTarget ? '최종목표' : (isBlockCenterCell ? '세부목표' : '과제')}"
+                class="w-full h-12 bg-transparent text-center text-[11px] resize-none focus:outline-none placeholder:text-slate-700 leading-tight"
+              >${escapeHtml(val)}</textarea>
+            </div>
+          `;
+        }
+
+
+        gridHtml += `</div>`;
+      }
+
+
+      fullGridContainer.innerHTML = gridHtml;
+    }
+
+
+    function syncCrossViewInputs(blockIdx, cellIdx, newValue) {
+      const textareas = document.querySelectorAll(`textarea[data-block="${blockIdx}"][data-cell="${cellIdx}"]`);
+      textareas.forEach(ta => {
+        if (ta !== document.activeElement) {
+          ta.value = newValue;
+        }
+      });
+
+
+      if (blockIdx === 4 && cellIdx !== 4) {
+        const syncedTas = document.querySelectorAll(`textarea[data-block="${cellIdx}"][data-cell="4"]`);
+        syncedTas.forEach(ta => { if (ta !== document.activeElement) ta.value = newValue; });
+       
+        // 포커스 뷰 타이틀 실시간 업데이트
+        if (activeFocusBlock === cellIdx) {
+          const focusTitleEl = document.getElementById('focus-block-title');
+          if (focusTitleEl) focusTitleEl.innerText = newValue || '세부목표 미정';
+        }
+      } else if (blockIdx !== 4 && cellIdx === 4) {
+        const syncedTas = document.querySelectorAll(`textarea[data-block="4"][data-cell="${blockIdx}"]`);
+        syncedTas.forEach(ta => { if (ta !== document.activeElement) ta.value = newValue; });
+
+
+        if (activeFocusBlock === blockIdx) {
+          const focusTitleEl = document.getElementById('focus-block-title');
+          if (focusTitleEl) focusTitleEl.innerText = newValue || '세부목표 미정';
+        }
+      }
+    }
+
+
+    function updateProgressIndicators() {
+      let totalCompletedTasks = 0;
+      const totalPossibleTasks = 64;
+
+
+      const outerBlockIndices = [0, 1, 2, 3, 5, 6, 7, 8];
+
+
+      outerBlockIndices.forEach(bIdx => {
+        for (let cIdx = 0; cIdx < 9; cIdx++) {
+          if (cIdx === 4) continue;
+          if (checkState[bIdx][cIdx]) {
+            totalCompletedTasks++;
+          }
+        }
+      });
+
+
+      const percentage = Math.round((totalCompletedTasks / totalPossibleTasks) * 100);
+
+
+      const pctEl = document.getElementById('overall-percentage');
+      const detailEl = document.getElementById('progress-text-detail');
+      const barEl = document.getElementById('overall-progress-bar');
+
+
+      if (pctEl) pctEl.innerText = `${percentage}% (${totalCompletedTasks} / ${totalPossibleTasks} 과제)`;
+      if (detailEl) detailEl.innerText = `${totalCompletedTasks} / ${totalPossibleTasks}`;
+      if (barEl) barEl.style.width = `${percentage}%`;
+    }
+
+
+    function updateSyncStatus(status, text) {
+      const dot = document.getElementById('sync-dot');
+      const textEl = document.getElementById('sync-text');
+
+
+      if (!dot || !textEl) return;
+
+
+      textEl.innerText = text;
+
+
+      if (status === 'connected') {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50";
+      } else if (status === 'saving') {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 pulse-subtle";
+      } else if (status === 'error') {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+      } else {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-slate-500";
+      }
+    }
+
+
+    function copyShareLink() {
+      const localUid = localStorage.getItem('mandalart_local_uid') || 'local';
+      const uid = currentUser ? currentUser.uid : localUid;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?uid=${uid}`;
+
+
+      const tempInput = document.createElement('textarea');
+      tempInput.value = shareUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+     
+      try {
+        document.execCommand('copy');
+        showToast('실시간 동기화 URL이 클립보드에 복사되었습니다!', 'success');
+      } catch (err) {
+        showToast('URL 복사 실패: ' + shareUrl, 'info');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+
+    function exportMandaratJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+        matrix,
+        checkState,
+        exportedAt: new Date().toISOString()
+      }, null, 2));
+
+
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Mandarat_2026_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('만다라트 데이터가 JSON 파일로 다운로드되었습니다.', 'info');
+    }
+
+
+    function clearAllDataPrompt() {
+      if (window.confirm("정말로 모든 만다라트 목표 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+        matrix = Array.from({ length: 9 }, () => Array(9).fill(''));
+        checkState = Array.from({ length: 9 }, () => Array(9).fill(false));
+        saveLocalStorageBackup();
+        saveToFirestore();
+        renderAll();
+        showToast('모든 만다라트 목표가 초기화되었습니다.', 'warning');
+      }
+    }
+
+
+    function openConfigGuideModal() {
+      document.getElementById('config-modal').classList.remove('hidden');
+    }
+
+
+    function closeConfigGuideModal() {
+      document.getElementById('config-modal').classList.add('hidden');
+    }
+
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+
+
+      let iconClass = 'fa-info-circle text-blue-400';
+      if (type === 'success') iconClass = 'fa-circle-check text-emerald-400';
+      if (type === 'warning') iconClass = 'fa-triangle-exclamation text-amber-400';
+      if (type === 'error') iconClass = 'fa-circle-xmark text-rose-400';
+
+
+      toast.className = `flex items-center gap-2 px-4 py-3 bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl shadow-2xl transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto max-w-sm`;
+      toast.innerHTML = `<i class="fa-solid ${iconClass} text-sm"></i><span>${escapeHtml(message)}</span>`;
+
+
+      container.appendChild(toast);
+
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
+
+
